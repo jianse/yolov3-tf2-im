@@ -41,8 +41,11 @@ flags.DEFINE_integer('batch_size', 8, 'batch size')
 flags.DEFINE_float('learning_rate', 1e-3, 'learning rate')
 flags.DEFINE_integer('num_classes', 80, 'number of classes in the model')
 flags.DEFINE_integer('weights_num_classes', None, 'specify num class for `weights` file if different, '
-                     'useful in transfer learning with different number of classes')
+                                                  'useful in transfer learning with different number of classes')
+flags.DEFINE_string('output', None, 'output path')
+flags.DEFINE_boolean('save_best_only', True, 'save the best model only')
 
+flags.mark_flags_as_required(['output'])
 
 def main(_argv):
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
@@ -177,8 +180,8 @@ def main(_argv):
         callbacks = [
             ReduceLROnPlateau(verbose=1),
             EarlyStopping(patience=3, verbose=1),
-            ModelCheckpoint('checkpoints/yolov3_train_{epoch}.tf',
-                            verbose=1, save_weights_only=True),
+            ModelCheckpoint(FLAGS.output,
+                            verbose=1, save_weights_only=True, save_best_only=FLAGS.save_best_only),
             TensorBoard(log_dir='logs')
         ]
 
